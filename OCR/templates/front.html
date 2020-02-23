@@ -1,0 +1,221 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <style>
+      * {
+        font-family: sans-serif;
+        color: aqua;
+      }
+      #loader {
+        background-image: url("/media/loader.gif");
+        background-repeat: no-repeat;
+        background-position: 50%;
+        overflow: hidden;
+      }
+      #main {
+        display: flex;
+        flex-direction: column;
+        height: 93vh;
+        justify-content: center;
+        align-items: center;
+        background: black;
+        color: #eee;
+        /* font-family: "Dosis", sans-serif; */
+        border: 1px solid white;
+      }
+
+      .brk-btn {
+        position: relative;
+        background: none;
+        color: aqua;
+        text-transform: uppercase;
+        text-decoration: none;
+        border: 0.2em solid aqua;
+        padding: 0.5em 1em;
+      }
+      .brk-btn:hover::before {
+        right: 80%;
+      }
+      .brk-btn:hover::after {
+        left: 80%;
+      }
+      .brk-btn::after {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 10%;
+        background: #222;
+        height: 0.3em;
+        left: 20%;
+        bottom: -0.25em;
+        transform: skewX(45deg);
+        -webkit-transition: all 0.45 cubic-bezier(0.86, 0, 0.07, 1);
+        transition: all 0.45s cubic-bezier(0.86, 0, 0.07, 1);
+      }
+      .brk-btn::before {
+        content: "";
+        display: block;
+        position: absolute;
+        width: 10%;
+        background: #222;
+        height: 0.3em;
+        right: 20%;
+        top: -0.21em;
+        transform: skewX(-45deg);
+        -webkit-transition: all 0.45s cubic-bezier(0.86, 0, 0.07, 1);
+        transition: all 0.45s cubic-bezier(0.86, 0, 0.07, 1);
+      }
+    </style>
+  </head>
+
+  <body style="background : black">
+    <div class="col-md-12 mb-3">
+      <span
+        id="loader"
+        style="width :100vw; height : 100vh;"
+        class="d-flex align-items-center justify-content-center"
+      ></span>
+      <center>
+        <h2>Welcome to Vasu's Tesseract</h2>
+      </center>
+      <marquee
+        >Any suggestion- Please route to
+        <span style="color :white">sharmav18.comp@coep.ac.in</span></marquee
+      >
+    </div>
+    <center id="main">
+      <div
+        class="col-md-12 mb-3"
+        id="input"
+        style="border : 1px solid aqua ; padding: 1em;"
+      >
+        <h1>Extract text from Image</h1>
+
+        <input type="file" accept="image/*" onchange="previewFile()" />
+        <img
+          class="mb-3"
+          src=""
+          id="preview"
+          style="display: none;"
+          height="300"
+          width="300"
+          alt="Image preview..."
+        />
+        <form action="stream/" method="POST" id="stream_form">
+          <div class="textbox">
+            <input
+              type="text"
+              style="display: none; visibility: hidden;"
+              id="user"
+              name="link"
+              value=""
+              required
+            /><br />
+          </div>
+
+          <button
+            class="brk-btn"
+            type="submit"
+            value="submit"
+            form="stream_form"
+            style="color :white"
+            onclick="toggle('block')"
+          >
+            Submit
+          </button>
+          <br />
+        </form>
+        <br />
+      </div>
+      <hr />
+      <div
+        class="col-md-12 mb-3"
+        id="display"
+        style="padding : 1em;display: none;border : 1px solid aqua"
+      >
+        <center>
+          <h3>Your extracted text is here ...</h3>
+        </center>
+        <p class="text=-center" style="color: white">
+          {{data}}
+        </p>
+        <center>
+          <input
+            class="brk-btn"
+            style="color: white"
+            type="button"
+            value="Go Back"
+            onclick="goBack()"
+          /><br />
+        </center>
+      </div>
+    </center>
+  </body>
+
+  <script>
+    var active = false;
+    document.onreadystatechange = function() {
+      const url = String(window.location.href);
+      if (document.readyState == "complete" && url.search("stream") != -1) {
+        document.getElementById("display").style.display = "block";
+        document.getElementById("input").style.display = "none";
+      } else {
+        document.getElementById("display").style.display = "none";
+        document.getElementById("input").style.display = "block";
+        toggle("none");
+      }
+    };
+    function goBack() {
+      window.location = "/";
+    }
+    function previewFile() {
+      const preview = document.querySelector("img");
+      const file = document.querySelector("input[type=file]").files[0];
+      const reader = new FileReader();
+      reader.addEventListener(
+        "load",
+        function() {
+          // convert image file to base64 string
+          document.getElementById("preview").style.display = "block";
+          preview.src = reader.result;
+          document.getElementById("user").value = reader.result;
+          active = true;
+        },
+        false
+      );
+
+      if (file) {
+        reader.readAsDataURL(file);
+        // alert(reader);
+      }
+    }
+    function modify() {
+      alert(1);
+    }
+  </script>
+  <script>
+    function toggle(mode) {
+      if (!active) return;
+      // alert(1);
+
+      document.getElementById("loader").style.display = mode;
+
+      if (mode == "block")
+        document.getElementsByTagName("body")[0].style.overflow = "hidden";
+      // if (mode == "none") enableScroll();
+
+      if (mode == "none")
+        document.getElementsByTagName("body")[0].style.overflow = "scroll";
+    }
+
+    window.onload = function() {
+      document.getElementById("loader").style.display == "none"
+        ? "block"
+        : "none";
+    };
+  </script>
+</html>
